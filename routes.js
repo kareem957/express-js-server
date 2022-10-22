@@ -1,20 +1,21 @@
-const express = require('express')
+const express = require("express");
+const path = require("path");
 
-// const todoRoutes = require("./src/todomanagement/route")
-// const githubActionsRoutes = require("./src/actionsactionsmanagement/route")
+const moduleRoutes = require("./src/routes");
+const { RouteNotFoundError } = require("./src/lib/error");
+
+const apiRouter = express.Router();
 
 module.exports = () => {
-    const router = express.Router()
+    apiRouter
+        .get("/healthcheck", (req, res) => {
+            console.log("Server is up and running !!!");
+            res.status(200).sendFile(path.join(__dirname, "static/index.html"));
+        })
+        .use("/api", moduleRoutes)
+        .all("*", () => {
+            throw new RouteNotFoundError();
+        });
 
-    router.get("/", (req, res) => {
-        res.send("Yupp! Working fine")
-    })
-    .post("/", (req, res)=>{
-        console.log(req.body);
-        res.json(res.body);
-    })
-    // .use(todoRoutes())
-    // .use("/github", githubActionsRoutes())
-    
-    return router
-}
+    return apiRouter;
+};
